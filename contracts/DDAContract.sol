@@ -58,7 +58,7 @@ contract DDAContract is AccessControl {
     bytes32 private constant CHARITY_ROLE = keccak256("CHARITY_ROLE");
     bytes32 private constant BLACK_ROLE = keccak256("BLACK_ROLE");
 
-    AdminStruct[] private adminUsers;
+    AdminStruct[] public adminUsers;
     
     modifier notBlackRole() {
         require(!hasRole(BLACK_ROLE, msg.sender), "Current wallet is in black list");
