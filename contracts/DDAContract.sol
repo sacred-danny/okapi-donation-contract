@@ -51,13 +51,13 @@ contract DDAContract is AccessControl {
     address public immutable WETH_ADDRESS;
     address public immutable USDT_ADDRESS;
     address public immutable OKAPI_ADDRESS;
-    CharityStruct[] public charities;
 
     bytes32 private constant OWNER_ROLE = keccak256("OWNER_ROLE");
     bytes32 private constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 private constant CHARITY_ROLE = keccak256("CHARITY_ROLE");
     bytes32 private constant BLACK_ROLE = keccak256("BLACK_ROLE");
 
+    CharityStruct[] public charities;
     AdminStruct[] public adminUsers;
     
     modifier notBlackRole() {
@@ -122,7 +122,7 @@ contract DDAContract is AccessControl {
     */
     function donate(uint256 _to, address _currency, uint256 _amount) external notBlackRole {
         IERC20 currency = IERC20(_currency);
-        require (_amount > 0 wei, "The amount must be bigger than zero!");
+        require (_amount > 100 wei, "The amount must be bigger than 100 wei!");
         require (currency.balanceOf(msg.sender) > _amount, "Not have enough tokens!");
         require (hasRole(CHARITY_ROLE, charities[_to].walletAddress), "FundRaiser's address isn't registered!");
 
@@ -147,7 +147,7 @@ contract DDAContract is AccessControl {
             ratio = 7;
         }
         uint256 transferAmount = _amount * (10000 - ratio) / 10000;
-        uint256 buyAmount = _amount * ratio / 10000;
+        uint256 buyAmount = _amount - transferAmount;
         charities[_to].fund = charities[_to].fund + transferAmount * price / 1 ether;
         currency.transferFrom(msg.sender, charities[_to].walletAddress, transferAmount);
         swap(_currency, OKAPI_ADDRESS, buyAmount, 0, msg.sender);
@@ -166,7 +166,7 @@ contract DDAContract is AccessControl {
                  bytes(_catalog.country).length > 0 &&
                  bytes(_catalog.summary).length > 0 &&
                  bytes(_catalog.detail).length > 0 &&
-                 bytes(_catalog.photo).length > 0,
+                 bytes(_catalog.name).length > 0,
                  'There is empty string passed as parameter');
 
         charities.push(CharityStruct({
